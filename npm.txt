@@ -1,0 +1,104 @@
+npm install --save express 
+npm install --save express-session 
+npm install --save express-handlebars
+npm install --save express body-parser
+npm install --save express mongoose
+npm install --save express passport
+npm install --save express connect-flash 
+npm install --save express bcryptjs
+npm install --save express handlebars
+npm install --save express @handlebars/allow-prototype-access
+
+//Carregando modulos
+//express 
+const express = require("express")
+const handlebars = require('express-handlebars')
+const Handlebars = require("handlebars")
+const bodyParser = require("body-parser")
+const app = express()
+const mongoose = require("mongoose")
+const path = require("path")
+const admin = require("./routes/admin")
+const passport = require('passport');
+
+const usuario = require("./routes/usuario")
+const session = require("express-session")
+const flash = require("connect-flash")
+const bcrypt = require("bcryptjs")
+const { allowedNodeEnvironmentFlags } = require("process")
+
+require("./config/auth")(passport)
+const Usuario = mongoose.model("usuarios")
+const Livro = mongoose.model("livros")
+const Comentario = mongoose.model("comentarios")
+const Msg = mongoose.model("mensagens")
+const db = require("./config/db")
+//font awsemo
+
+
+
+
+
+
+
+//const mongoose = require("mongoose")
+
+// config
+//sesion
+
+app.use(session({
+    secret: "curso",
+    resave: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    saveUninitialized: true
+}))
+
+
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(flash())
+// middleware 
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash("success_msg")
+    res.locals.error_msg = req.flash("error_msg")
+    res.locals.error = req.flash("error")
+    res.locals.user = req.user || null
+
+
+    next()
+})
+/// Variavies de usuario
+
+//adm
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
+
+//body parser
+app.use(bodyParser.urlencoded({
+    extended: true
+}))
+app.use(bodyParser.json())
+
+//handlebars
+app.engine('handlebars', handlebars({
+    defaultlayout: 'main',
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
+    
+}))
+app.set('view engine', 'handlebars')
+
+// Mongoose
+mongoose.Promise = global.Promise
+mongoose.connect(db.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log("Conectado ao mongo")
+}).catch(() => {
+    console.log("erro ao se conectar")
+})
+
+// Public (stati files)
+app.use(express.static(path.join(__dirname, "public")))

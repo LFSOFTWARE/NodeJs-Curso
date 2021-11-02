@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><b>G</b>ames </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Login</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link disabled">Contato</a>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <h2>login</h2>
+    <div>
+        <input type="email" name="email" id="email">
+        <input type="password" name="password" id="password">
+        <button onclick="login()" type="submit">entrar</button>
+    </div>
+    <h4>Store of games </h4>
+    <hr>
+
+    <ul id="games">
+
+    </ul>
+
+    <hr>
+    <div style="width: 50%; max-width: 100px;">
+        <h4>Novo game</h4>
+        <input type="text" name="title" id="title">
+        <input type="number" name="year" id="year">
+        <input type="number" name="price" id="price"><br>
+        <button onclick="createGame()" type="button">Criar</button>
+    </div>
+
+    <hr>
+    <div style="width: 50%; max-width: 100px;">
+        <h4>Editar game</h4>
+        <input type="text" name="idEdit" id="idEdit" readonly>
+        <input type="text" name="titleEdit" id="titleEdit">
+        <input type="number" name="yearEdit" id="yearEdit">
+        <input type="number" name="priceEdit" id="priceEdit"><br>
+        <button onclick="updateGame()" type="button">Editar</button>
+    </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+    integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"
+    integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/"
+    crossorigin="anonymous"></script>
+<script>
+
+    var axiosConfig = {
+
+        headers: {
+            Authorization: "Bearer " + localStorage.getItem("token")
+        }
+    }
+
+    function login() {
+        var emailField = document.getElementById("email");
+        var passwordField = document.getElementById("password");
+
+
+        var email = emailField.value;
+        var password = passwordField.value;
+
+
+        axios.post("http://localhost:8081/auth", {
+            email,
+            password
+        }).then((res) => {
+            var token = res.data.token
+
+            localStorage.setItem("token", token)
+            axiosConfig.headers.Authorization = "Bearer " + localStorage.getItem("token")
+
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+
+    function createGame() {
+        var titleInput = document.getElementById("title");
+        var yearInput = document.getElementById("year");
+        var priceInput = document.getElementById("price");
+
+        var game = {
+            nome: titleInput.value,
+            price: priceInput.value,
+            year: yearInput.value
+        }
+
+        axios.post("http://localhost:8081/game", game, axiosConfig).then(resposne => {
+            if (resposne.status == 200)
+                console.log("ok");
+            atualizar();
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+    function atualizar() {
+        axios.get("http://localhost:8081/games", axiosConfig).then((response) => {
+            var games = response.data;
+            var list = document.getElementById("games");
+            list.innerHTML = "";
+            games.map((game) => {
+                var item = document.createElement("li");
+
+                item.setAttribute("data-id", game.id);
+                item.setAttribute("data-nome", game.nome);
+                item.setAttribute("data-year", game.year);
+                item.setAttribute("data-price", game.price);
+                item.innerHTML = `${game.id} | ${game.nome} R$ ${game.price}`
+                list.appendChild(item);
+
+                var btnDelete = document.createElement("button");
+
+                btnDelete.innerHTML = "Deletar";
+                btnDelete.addEventListener("click", function () {
+                    deleteGame(item)
+                });
+                item.appendChild(btnDelete);
+
+                var btnEdit = document.createElement("button");
+
+                btnEdit.innerHTML = "Editar";
+                btnEdit.addEventListener("click", function () {
+                    editGame(item)
+                });
+                item.appendChild(btnEdit);
+            })
+
+
+
+
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+    function deleteGame(ListItem) {
+        var id = ListItem.getAttribute("data-id");
+
+        axios.delete(`http://localhost:8081/game/${id}`, axiosConfig).then((resolve) => {
+            console.log("ok");
+            atualizar();
+        }).catch((err) => {
+            console.log(err)
+        })
+
+
+    }
+
+    function editGame(ListItem) {
+        var id = ListItem.getAttribute("data-id");
+        var nome = ListItem.getAttribute("data-nome");
+        var price = ListItem.getAttribute("data-price");
+        var year = ListItem.getAttribute("data-year");
+
+
+        var idField = document.getElementById("idEdit")
+        idField.value = id;
+        var nomeField = document.getElementById("titleEdit")
+        nomeField.value = nome;
+
+        var yearEdit = document.getElementById("yearEdit")
+        yearEdit.value = year;
+
+        var priceEdit = document.getElementById("priceEdit")
+        priceEdit.value = price;
+    }
+
+    function updateGame() {
+        var idInput = document.getElementById("idEdit")
+        var titleInput = document.getElementById("titleEdit");
+        var yearInput = document.getElementById("yearEdit");
+        var priceInput = document.getElementById("priceEdit");
+
+        var game = {
+            nome: titleInput.value,
+            price: priceInput.value,
+            year: yearInput.value
+        }
+        var id = idInput.value;
+
+        axios.put(`http://localhost:8081/game/${id}`, game, axiosConfig).then(resposne => {
+            if (resposne.status == 200)
+                console.log("update");
+            atualizar();
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
+
+    atualizar();
+
+
+
+</script>
+
+</html>

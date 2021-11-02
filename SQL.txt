@@ -1,0 +1,4 @@
+"COD","DESCRICAO","PERIODO","HORARIO","SALA","QTD_VAGAS","VALOR_CURSO","IND_SITUACAO"
+"25","Curso de APEX","Manhã","10h","Sala 1","10","1000","A"
+"26","Curso de SQL","Tarde","14h","Sala 2","20","800","E"
+"27","Curso de PL/SQL","Noite","20h","Sala 3","15","950","A"

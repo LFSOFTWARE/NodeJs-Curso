@@ -1,0 +1,44 @@
+<%- include("partials/header.ejs")%>
+<body>
+  <%- include("partials/homenavbar.ejs")%>
+  <div class="container">
+    <hr>
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Bem-Vindo</h1>
+        <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+      </div>
+    </div>
+    <%articles.forEach((article=>{%>
+        <div class="card">
+          <div class="card-header">
+            <h2><%= article.title %> </h2>
+          </div>
+          <div class="card-body">
+              <a href="/<%= article.slug %> " class="btn btn-success">Ler artigo</a>
+          </div>
+        
+        </div>
+        <br>
+      <% }))%>
+
+      <div class="row">
+        <div class="col-12">
+          <a style="float: right; text-decoration: none; font-size: 23;" href="/articles/pagina/2">Next >>></a>
+        </div>
+        
+        <hr>
+      </div>  
+      <hr>
+      
+  </div>
+
+
+</body>
+<%- include("partials/scripts.ejs")%>
+
+
+<script>
+
+
+</script>
